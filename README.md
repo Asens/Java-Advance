@@ -6,7 +6,5 @@
 
 本书的书写顺序为MySQL,计算机网络,并发,集合,算法,中间件,分布式等
 
-
-
-![1569123029292](D:\gitbook\Java-Advance\.gitbook\assets\1569123029292.png)
+![1569123320132](.gitbook/assets/1569123320132.png)
 
