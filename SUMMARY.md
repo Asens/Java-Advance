@@ -6,4 +6,5 @@
 
 * [事务隔离与传播](mysql/untitled.md)
 * [MySQL中的索引](mysql/mysql-zhong-de-suo-yin.md)
+* [MySQL存储引擎](mysql/mysql-store-engine.md)
 
