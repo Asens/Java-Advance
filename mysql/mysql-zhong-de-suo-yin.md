@@ -168,3 +168,46 @@ SET timestamp=1570012742;
 select * from view_log where institution_id = 20 and view_month = 11 and view_day = 20  LIMIT 10;
 ```
 
+### Explain的意义
+
+```text
+select_type
+```
+
+表示查询中每个select子句的类型
+
+```text
+type
+```
+
+表示MySQL在表中找到所需行的方式，又称“访问类型”
+
+```text
+possible_keys
+```
+
+指出MySQL能使用哪个索引在表中找到行，查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用
+
+```text
+key
+```
+
+显示MySQL在查询中实际使用的索引，若没有使用索引，显示为NULL
+
+```text
+key_len
+```
+
+表示索引中使用的字节数，可通过该列计算查询中使用的索引的长度
+
+```text
+ref
+```
+
+表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值
+
+```text
+Extra
+```
+
+包含不适合在其他列中显示但十分重要的额外信息
