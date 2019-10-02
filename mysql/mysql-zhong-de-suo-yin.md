@@ -91,7 +91,50 @@ B-Tree索引适用的情况有全键值、键值范围或键前缀査找，其�
 
 MySQL可以使用索引来获取列的数据而无需再读取数据行数据，此时，当索引包含所有查询所需的字段的值，可以被成为覆盖索引
 
+- 只读取索引的数据会极大的减少数据访问量，也很容易把索引全部放在内存中
+- 索引时按照顺序存储的，读取会比随机读取快很多
+- 在InnoDB中，因为时聚簇索引，直接获取数据，可以避免二次查询
 
+只有B-Tree索引可以用在覆盖索引，因为覆盖索引需要有索引列的数据，Hash索引，全文索引等均不具备此条件
+
+当使用覆盖索引时，explain中的extra列显示“Using index”
+
+#### 使用索引排序
+
+同一个索引可以同时满足排序和查找
+
+```sql
+CREATE TABLE `test` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `age` int(11) DEFAULT NULL,
+  `rank` int(11) DEFAULT NULL,
+  `create_date` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `index` (`age`,`rank`,`create_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
+
+当order by的字段满足索引的最左前缀，且都是ASC或DESC时，可以使用索引排序
+
+```sql
+select * from test order by age,rank
+```
+
+当之前的列指定为一个值时，后续的字段排序也满足上述条件可用索引排序
+
+```sql
+select * from test where age = 18 order by rank
+```
+
+不能的情况
+
+```sql
+select * from test where age = 18 order by rank ×
+select * from test where age = 18 order by age,create_date ×
+select * from test order by age ASC,rank DESC ×
+select * from test where age < 18 order by rank ×
+select * from test where age < (17,18) order by rank ×
+```
 
 ### MySQL慢查询日志
 
