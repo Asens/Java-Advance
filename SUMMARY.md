@@ -10,10 +10,6 @@
 
 ## 网络
 
-- [Https协议详解](wang-luo/https-xie-yi-xiang-jie.md)
-- [TCP/IP 协议](wang-luo/tcp.md)
-
-## 测试
-
-- [测试](test/test.md)
+- [Https协议详解](net/https.md)
+- [TCP/IP 协议](net/tcp.md)
 
