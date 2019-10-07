@@ -1,0 +1,36 @@
+{
+    "title": "Java进阶之路",
+    "description": "精进Java技术",
+    "author": "Asens",
+    "output.name": "site",
+    "gitbook": "3.2.3",
+    "root": ".",
+    "structure": {
+        "readme": "README.md"
+    },
+    "links": {
+        "sidebar": {
+            "Home": "http://www.geekutil.com/java-advance/"
+        }
+    },
+    "plugins": [
+        "-lunr",
+        "-search",
+        "-highlight",
+        "-livereload",
+        "github@^2.0.0",
+        "github-buttons@2.1.0"
+    ],
+    "pluginsConfig": {
+         "github": {
+            "url": "https://github.com/Asens/Java-Advance"
+        },
+        "github-buttons": {
+            "repo": "Asens/Java-Advance",
+            "types": [
+                "star"
+            ],
+            "size": "small"
+        }
+    }
+}

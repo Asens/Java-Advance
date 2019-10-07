@@ -13,3 +13,11 @@
 - [Https协议详解](net/https.md)
 - [TCP/IP 协议](net/tcp.md)
 
+## JVM
+
+- [Java内存模型](jvm/jmm.md)
+
+## 设计模式
+
+- [创建](pattern-design/create.md)
+- [结构](pattern-design/structure.md)
