@@ -203,7 +203,7 @@ public class ReaderThree implements Reader{
 
 在Client中也同样添加
 
-```
+``` java
 public static void main(String[] aa){
     Reader reader=new ReaderOne();
     reader.read();
