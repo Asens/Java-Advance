@@ -20,7 +20,7 @@ description: 设计模式-结构
 
 有一个接口
 
-```
+```java
 public interface Ball {
     void come();
     void go();
@@ -29,7 +29,7 @@ public interface Ball {
 
 一个类
 
-```
+```java
 public class SpecialBall{
     public void come(){
         System.out.println("I can only come");
@@ -45,7 +45,7 @@ public class SpecialBall{
 
 在接口和实现类之间添加一个抽象类
 
-```
+```java
 public abstract class BallAdapter implements Ball{
     @Override
     public void go() {
@@ -56,7 +56,7 @@ public abstract class BallAdapter implements Ball{
 
 然后使SpecialBall 继承此接口
 
-```
+```java
 public class SpecialBall extends BallAdapter{
     public void come(){
         System.out.println("I can only come");
@@ -72,7 +72,7 @@ public class SpecialBall extends BallAdapter{
 
 新增的适配器继承已有实现类
 
-```
+```java
 public class BallAdapter extends SpecialBall implements Ball {
     @Override
     public void go() {
@@ -83,7 +83,7 @@ public class BallAdapter extends SpecialBall implements Ball {
 
 调用的时候
 
-```
+```java
 public static void main(String[] aa){
     Ball ball=new BallAdapter();
     ball.come();
@@ -94,7 +94,7 @@ public static void main(String[] aa){
 
 将 `SpecialBall` 作为内部类
 
-```
+```java
 public class BallAdapter implements Ball{
     private SpecialBall specialBall;
 
@@ -116,7 +116,7 @@ public class BallAdapter implements Ball{
 
 调用
 
-```
+```java
 public static void main(String[] aa){
     SpecialBall specialBall=new SpecialBall();
     Ball ball=new BallAdapter(specialBall);
@@ -138,7 +138,7 @@ public static void main(String[] aa){
 
 最初始的实现类
 
-```
+```java
 public class ReaderOne implements Reader{
     @Override
     public void read() {
@@ -153,7 +153,7 @@ public class ReaderOne implements Reader{
 
 在这个方法前后可以加入自定义的方法
 
-```
+```java
 public class ReaderTwo implements Reader{
     private Reader reader;
 
@@ -172,7 +172,7 @@ public class ReaderTwo implements Reader{
 
 然后在Client中调用
 
-```
+```java
 public static void main(String[] aa){
     Reader reader=new ReaderOne();
     reader.read();
@@ -184,7 +184,7 @@ public static void main(String[] aa){
 
 再次嵌套
 
-```
+```java
 public class ReaderThree implements Reader{
     private Reader reader;
 
@@ -203,7 +203,7 @@ public class ReaderThree implements Reader{
 
 在Client中也同样添加
 
-```
+```java
 public static void main(String[] aa){
     Reader reader=new ReaderOne();
     reader.read();
