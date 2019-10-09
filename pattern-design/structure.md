@@ -286,7 +286,8 @@ public class DynamicProxy implements InvocationHandler{
        this.target = target;
    }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method,
+                         Object[] args) throws Throwable {
         System.out.println("after");
         Object result=method.invoke(target,args);
         System.out.println("before");
@@ -344,7 +345,8 @@ public class CGlibProxy implements MethodInterceptor {
         return (T)Enhancer.create(clz,this);
     }
 
-    public Object intercept(Object o, Method method, Object[] objects, MethodProxy 		  methodProxy) throws Throwable {
+    public Object intercept(Object o, Method method, Object[] objects, 
+                            MethodProxy methodProxy) throws Throwable {
         System.out.println("cglib before");
         Object result=methodProxy.invokeSuper(o,objects);
         System.out.println("cglib after");
