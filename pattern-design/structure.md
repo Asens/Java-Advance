@@ -220,5 +220,167 @@ public static void main(String[] aa){
 
 ## 代理模式
 
+**简介**
+
+一个类对另一个类方法的扩展或增强
+
+**场景**
+
+和装饰器模式类似，AOP的典型使用场景，日志，计时，事务等。
+
+### 静态代理
+
+静态代理简单易用，但是必须和代理类实现相同接口
+
+```java
+public interface Person {
+    void say();
+}
+```
+
+默认实现类
+
+```java
+public class PersonImpl implements Person{
+    public void say() {
+        System.out.println("default person impl");
+    }
+}
+```
+
+ 静态代理类,实现Person接口,传入一个Person实现类,在接口的实现方法中调用被代理类的say()方法,同时在前后加入自定义代码
+
+```java
+public class PersonProxy implements Person{
+    private Person person;
+
+    public PersonProxy(Person person) {
+        this.person = person;
+    }
+
+    public void say() {
+        System.out.println("before");
+        person.say();
+        System.out.println("after");
+    }
+}
+```
+
+### 动态代理
+
+使用动态代理，代理类可以代理任何符合条件的类，不必和被代理类实现相同接口
+
+动态代理的实现方法有2种,分别是JDK的动态代理和CGlib动态代理
+
+#### JDK动态代理
+
+JDK提供了动态代理的方案，代理类需要实现InvocationHandler，在`invoke`方法中对内代理方法进行增强
+
+被代理类必须实现接口
+
+```java
+public class DynamicProxy implements InvocationHandler{
+   private Object target;
+
+   public DynamicProxy(Object target) {
+       this.target = target;
+   }
+
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        System.out.println("after");
+        Object result=method.invoke(target,args);
+        System.out.println("before");
+        return result;
+   }
+   
+   public <T> T getProxy(){
+        return (T)Proxy.newProxyInstance(
+            target.getClass().getClassLoader(),
+            target.getClass().getInterfaces(),
+            this);
+    }
+}
+```
+
+新建PersonImpl,DynamicProxy的实例然后获取PersonImpl的代理,调用对应的方法
+
+```java
+public static void main(String[] aa){
+   DynamicProxy proxy=new DynamicProxy(new PersonImpl());
+   Person personProxy=proxy.getProxy();
+   personProxy.say();
+}
+```
+
+#### CGLIB代理
+
+通过字节码(ASM)为一个类创建子类,并在子类中采用方法拦截的技术拦截所有父类方法的调用
+
+直接使用Person实体类,不再实现接口
+
+```java
+public class Person {
+    public void say(){
+        System.out.println("say");
+    }
+}
+```
+
+CGlibProxy实现MethodInterceptor接口,需要导入对应的jar包,maven:
+
+```xml
+<dependency>
+    <groupId>cglib</groupId>
+    <artifactId>cglib</artifactId>
+    <version>3.2.5</version>
+</dependency>
+```
+
+ 与intercept和JDK的invoke方法类似,调用并前后加强
+
+```java
+public class CGlibProxy implements MethodInterceptor {
+    public <T> T getProxy(Class<T> clz){
+        return (T)Enhancer.create(clz,this);
+    }
+
+    public Object intercept(Object o, Method method, Object[] objects, MethodProxy 		  methodProxy) throws Throwable {
+        System.out.println("cglib before");
+        Object result=methodProxy.invokeSuper(o,objects);
+        System.out.println("cglib after");
+        return result;
+    }
+}
+```
+
+新建CGlibProxy 实例,生成对应的代理类并调用
+
+```java
+public static void main(String[] aa){
+    CGlibProxy proxy=new CGlibProxy();
+    Person person=proxy.getProxy(Person.class);
+    person.say();
+}
+```
+
+#### 二者区别
+
+区别：
+
+- JDK动态代理代理的类，必须实现接口，CGLIB对指定的目标类生成一个子类，类不能时final
+- JDK动态代理基于拦截反射机制，CGLIB基于字节码生成
+- JDK8时，JDK动态代理效率高，Spring中实现接口，默认采用JDK动态代理，没有则用CGLIB
+
+## 外观模式（Facade）
 
 
+
+## 桥接模式（Bridge
+
+
+
+## 组合模式(Composite)
+
+
+
+## 享元模式(FlyWeight)
