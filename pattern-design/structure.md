@@ -387,7 +387,7 @@ public static void main(String[] aa){
 
 定义一个洗衣机，可以执行3个动作
 
-```
+```java
 public class OldWasher{
     public void addWater() {
         System.out.println("old addWater");
@@ -405,7 +405,7 @@ public class OldWasher{
 
 但是当提供一个外观模式，就可以变成全自动洗衣机
 
-```
+```java
 public class AutoWasher{
     public void start() {
         addWater();
@@ -429,7 +429,7 @@ public class AutoWasher{
 
 只需调用start，就可以获得和之前相同的效果，方便易用
 
-```
+```java
 public static void main(String[] args){
     OldWasher oldWasher=new OldWasher();
     oldWasher.addWater();
@@ -441,12 +441,224 @@ public static void main(String[] args){
 }
 ```
 
-## 桥接模式（Bridge
+## 桥接模式（Bridge）
 
+**简介**
 
+两种可变实现类的组合，它们的抽象就是连接的桥梁
+
+**场景**
+
+调用者和被调用者都有不同的实现的时候，比如不同的人可以使用不同的笔写字
+
+**代码**
+
+ 人的抽象
+
+```java
+public abstract class AbstractPerson {
+    protected Pen pen;
+    public AbstractPerson(Pen pen){
+        this.pen=pen;
+    }
+    public abstract void write();
+}
+```
+
+笔的抽象
+
+```java
+public abstract class Pen {
+    public abstract void write();
+}
+```
+
+笔的实现一
+
+```java
+public class PenOne extends Pen{
+    public void write() {
+        System.out.println("pen one write");
+    }
+}
+```
+
+笔的实现二
+
+```java
+public class PenTwo extends Pen{
+    public void write() {
+        System.out.println("pen two write");
+    }
+}
+```
+
+人的实现一
+
+```java
+public class PersonOne extends AbstractPerson{
+    public PersonOne(Pen pen) {
+        super(pen);
+    }
+
+    public void write() {
+        pen.write();
+    }
+}
+```
+
+然后调用
+
+```java
+public class Client {
+    public static void main(String[] args){
+        Pen pen=new PenOne();
+        AbstractPerson person=new PersonOne(pen);
+        person.write();
+
+        Pen penTwo=new PenTwo();
+        person=new PersonOne(penTwo);
+        person.write();
+    }
+}
+```
 
 ## 组合模式(Composite)
 
+**介绍**
 
+组合模式是将对象以树型的结构表示出来，来表达对象的部分和整体的关系
+
+**场景**
+
+在树形结构,像分类-子分类,国家-地区等存在多级父子关系的都可以用到组合模式
+
+这个模式也是Java的二叉树的实现方式
+
+**代码**
+
+```java
+public class TreeNode {
+    private TreeNode parent;
+    private String name;
+    private List<TreeNode> list=new ArrayList<>();
+
+    public TreeNode(String name) {
+        this.name=name;
+    }
+
+    public void add(TreeNode node){
+        list.add(node);
+        node.setParent(this);
+    }
+
+    public List<TreeNode> children(){
+        return list;
+    }
+
+    private void setParent(TreeNode parent){
+        this.parent=parent;
+    }
+
+    public void display() {
+        System.out.println();
+        TreeNode p=parent;
+        while(p!=null){
+            p=p.parent;
+            System.out.print("--");
+        }
+        System.out.print(name);
+        list.forEach(TreeNode::display);
+    }
+}
+```
+
+在main中设置其关系,并调用,在display中判断这个节点到root节点的中间节点的个数,显示对应层数,顺便递归遍历所有节点并显示输出
+
+```java
+public class Client {
+    public static void main(String[] args){
+        TreeNode root=new TreeNode("中国");
+
+        TreeNode node1=new TreeNode("北京");
+        TreeNode node2=new TreeNode("河北");
+        root.add(node1);
+        root.add(node2);
+
+        TreeNode node21=new TreeNode("秦皇岛");
+        node2.add(node21);
+
+        root.display();
+    }
+}
+```
+
+> 输出
+> 中国
+> --北京
+> --河北
+> ----秦皇岛
 
 ## 享元模式(FlyWeight)
+
+**简介**
+
+享元模式是为了降低重复创建对象开销的一种设计模式,即对象池
+
+**场景**
+
+大量创建复杂的对象，可以缓存起来
+
+**代码**
+
+假设我们需要造车,但是创建一辆车的时间有点长,车的以name作为唯一标识:
+
+```java
+public class Car {
+    private String name;
+    public Car(String name){
+        this.name=name;
+        //假设创建时间有点长
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+```
+
+造车的工厂模式,当我们创建过这辆车,直接从内存中把这辆车拿出来,否则就新创建一辆并把它放入内存
+
+```java
+public class CarFactory {
+    private static Map<String,Car> map=new HashMap<String, Car>();
+
+    public static Car createCar(String name){
+        if(map.containsKey(name)){
+            return map.get(name);
+        }
+
+        Car car=new Car(name);
+        map.put(name,car);
+        return car;
+    }
+}
+```
+
+ 在main方法中调用对应的创建车辆,car3获取的是car1,car1和car2开始创建时需要调用构造函数,而再需要car1时只需要从内存中拿出来即可,典型的空间换时间的思想
+
+```java
+public static void main(String[] arhge){
+    Car car1=CarFactory.createCar("car1");
+    System.out.println(car1.getName()+" "+System.currentTimeMillis());
+    Car car2=CarFactory.createCar("car2");
+    System.out.println(car2.getName()+" "+System.currentTimeMillis());
+    Car car3=CarFactory.createCar("car1");
+    System.out.println(car3.getName()+" "+System.currentTimeMillis());
+}
+```
