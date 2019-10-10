@@ -375,7 +375,71 @@ public static void main(String[] aa){
 
 ## 外观模式（Facade）
 
+**简介**
 
+为一系列动作提供一个统一的接口，方便外部去调用
+
+**场景**
+
+定义一个入口，可以执行复杂的逻辑。比如处理一个数据，内部可能需要读取文件，筛选，排序，最终获得结果，在外观模式就提供一个入口，调用直接获取结果
+
+**代码**
+
+定义一个洗衣机，可以执行3个动作
+
+```
+public class OldWasher{
+    public void addWater() {
+        System.out.println("old addWater");
+    }
+    public void wash() {
+        System.out.println("old wash");
+    }
+    public void dry() {
+        System.out.println("old dry");
+    }
+}
+```
+
+当我们实际使用时，需要分别调用
+
+但是当提供一个外观模式，就可以变成全自动洗衣机
+
+```
+public class AutoWasher{
+    public void start() {
+        addWater();
+        wash();
+        dry();
+    }
+
+    private void addWater() {
+        System.out.println("new addWater");
+    }
+
+    private void wash() {
+        System.out.println("new wash");
+    }
+
+    private void dry() {
+        System.out.println("new dry");
+    }
+}
+```
+
+只需调用start，就可以获得和之前相同的效果，方便易用
+
+```
+public static void main(String[] args){
+    OldWasher oldWasher=new OldWasher();
+    oldWasher.addWater();
+    oldWasher.wash();
+    oldWasher.dry();
+
+    AutoWasher autoWasher=new AutoWasher();
+    autoWasher.start();
+}
+```
 
 ## 桥接模式（Bridge
 
