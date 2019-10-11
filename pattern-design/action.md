@@ -18,6 +18,8 @@ description: 设计模式中关于行为的
 
 **代码**
 
+> [代码参考](https://github.com/Asens/Java-Advance/tree/master/code/src/com/geekutil/designpattern/strategy)
+
 策略本身，定义操作行为
 
 ```
@@ -82,4 +84,3 @@ public class Client {
 
 >3
 >2
-
