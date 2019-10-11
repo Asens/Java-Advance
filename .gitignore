@@ -2,3 +2,4 @@ _book
 node_modules
 /code/target/
 .idea
+/.idea/
