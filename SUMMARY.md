@@ -21,4 +21,5 @@
 
 - [设计模式-创建](pattern-design/create.md)
 - [设计模式-结构](pattern-design/structure.md)
+- [设计模式-行为](pattern-design/action.md)
 
