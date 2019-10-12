@@ -195,6 +195,8 @@ public class Client {
 
 **代码**
 
+[ 命令模式代码参考](https://github.com/Asens/Java-Advance/tree/master/code/src/com/geekutil/designpattern/command)
+
 命令接口，定义行为
 
 ```
@@ -243,4 +245,3 @@ public class Client {
 ```
 
 ## 中介者模式(Mediator)
-
