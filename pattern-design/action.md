@@ -185,13 +185,62 @@ public class Client {
 
 ## 命令模式(Command)
 
+**简介**
 
+命令模式有三个角色，命令发布者，命令本身，命令执行者。 命令模式的本质是对命令进行封装，将发出命令的责任和执行命令的责任分割开 
 
+**场景**
 
+当调用者和执行者需要完全解耦时，将命令封装为请求
 
+**代码**
 
+命令接口，定义行为
 
+```
+public interface Command {
+    void execute();
+}
+```
 
+实现类，内部包含接收者
 
+```
+public class DownCommand implements Command {
+    private Receiver receiver;
 
+    public DownCommand(Receiver receiver) {
+        this.receiver = receiver;
+    }
+
+    @Override
+    public void execute() {
+        receiver.down();
+    }
+}
+```
+
+`UpCommand`略
+
+接收者可以是任何类，处理最终的逻辑
+
+```
+public class Client {
+    public static void main(String[] args) {
+        Receiver receiver = new Receiver();
+
+        UpCommand upCommand = new UpCommand(receiver);
+        DownCommand downCommand = new DownCommand(receiver);
+
+        Invoker invoker = new Invoker();
+        invoker.setCommand(upCommand);
+        invoker.action();
+
+        invoker.setCommand(downCommand);
+        invoker.action();
+    }
+}
+```
+
+## 中介者模式(Mediator)
 
