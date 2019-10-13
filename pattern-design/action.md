@@ -347,13 +347,89 @@ public class Client {
 }
 ```
 
-## 模板方法模式
+## 模板方法模式（TemplateMethod）
+
+**简介**
+
+当一个接口有多种实现，多种实现方式大同小异时，适合使用模板方法，各个实现继承抽象类，抽象类在公共方法中调用实现类方法
+
+**场景**
+
+应用场景广泛，对于实现差异不大的实现类时，可以有效合并逻辑，减少冗余
+
+**代码**
+
+工人和农民开心的一天
+
+抽象人一天的生活
+
+```
+public abstract class AbstractPerson {
+    public void happyDay(){
+        wakeUp();
+        doSomething();
+        sleep();
+    }
+
+    private void wakeUp(){
+        System.out.println("wake up in the morning");
+    }
+
+    private void sleep(){
+        System.out.println("sleep in the night");
+    }
+
+    protected abstract void doSomething();
+}
+```
+
+工人，只需实现特定的方法，无需（但是可以）修改公共的方法
+
+```
+public class Worker extends AbstractPerson{
+    @Override
+    protected void doSomething() {
+        System.out.println("go to work");
+    }
+}
+```
+
+农民，同上
+
+```
+public class Farmer extends AbstractPerson {
+    @Override
+    protected void doSomething() {
+        System.out.println("go to farm");
+    }
+}
+```
+
+调用
+
+```
+public class Client {
+    public static void main(String[] args) {
+        Farmer farmer = new Farmer();
+        Worker worker = new Worker();
+        farmer.happyDay();
+        worker.happyDay();
+    }
+}
+```
+
+输出：
+
+> wake up in the morning
+> go to farm
+> sleep in the night
+> wake up in the morning
+> go to work
+> sleep in the night
+
+## 迭代器模式（Iterator）
 
 
-
-
-
-## 迭代器模式
 
 
 
