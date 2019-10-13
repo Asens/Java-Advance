@@ -245,3 +245,141 @@ public class Client {
 ```
 
 ## 中介者模式(Mediator)
+
+**简介**
+
+很多对象需要互相交互，但是直接调用的话，会分散，会乱，会很耦合，因此引入中介者的机制，所有对象通过中介者进行交互。
+
+中介者可以封装多个对象的多个行为，供外界统一调用
+
+**场景**
+
+比如市场是买家和卖家的中介者，
+
+**代码**
+
+市场作为中介者，买家和卖家交流都需要经过市场
+
+```
+public class Mediator {
+    private Buyer buyer;
+    private Seller seller;
+
+    public void setBuyer(Buyer buyer) {
+        this.buyer = buyer;
+    }
+
+    public void setSeller(Seller seller) {
+        this.seller = seller;
+    }
+
+    public void sendToSeller(String msg){
+        seller.receiveMsg(msg);
+    }
+
+    public void sendToBuyer(String msg) {
+        buyer.receiveMsg(msg);
+    }
+
+    public void sendToAll(String msg){
+        seller.receiveMsg(msg);
+        buyer.receiveMsg(msg);
+    }
+}
+```
+
+买家可以发送和接收消息
+
+```
+public class Buyer{
+    private Mediator mediator;
+
+    public Buyer(Mediator mediator) {
+        this.mediator = mediator;
+    }
+
+    public void sendToSeller(String msg){
+        mediator.sendToSeller(msg);
+    }
+
+    public void receiveMsg(String msg){
+        System.out.println("Buyer get message:"+msg);
+    }
+}
+```
+
+卖家一样
+
+```
+public class Seller {
+    private Mediator mediator;
+
+    public Seller(Mediator mediator) {
+        this.mediator = mediator;
+    }
+
+    public void sendToBuyer(String msg){
+        mediator.sendToBuyer(msg);
+    }
+
+    public void receiveMsg(String msg){
+        System.out.println("Seller get message:"+msg);
+    }
+}
+```
+
+在Client中调用,市场本身可以可以调用，发生全部消息，可以被市场管理者调用
+
+```
+public class Client {
+    public static void main(String[] args) {
+        Mediator mediator = new Mediator();
+        Buyer buyer = new Buyer(mediator);
+        Seller seller = new Seller(mediator);
+        mediator.setBuyer(buyer);
+        mediator.setSeller(seller);
+
+        seller.sendToBuyer("buy something?");
+        buyer.sendToSeller("yes");
+
+        mediator.sendToAll("market message");
+    }
+}
+```
+
+## 模板方法模式
+
+
+
+
+
+## 迭代器模式
+
+
+
+## 访问者模式
+
+
+
+## 观察者模式
+
+
+
+## 解释器模式
+
+
+
+## 备忘录模式
+
+
+
+## 状态模式
+
+
+
+
+
+
+
+
+
