@@ -22,7 +22,7 @@ description: 设计模式中关于行为的
 
 策略本身，定义操作行为
 
-```
+```java
 public interface Strategy {
     int operation(int one,int two);
 }
@@ -30,7 +30,7 @@ public interface Strategy {
 
 实现一，加
 
-```
+```java
 public class StrategyAdd implements Strategy {
     @Override
     public int operation(int one, int two) {
@@ -41,7 +41,7 @@ public class StrategyAdd implements Strategy {
 
 实现二，乘
 
-```
+```java
 public class StrategyMultiply implements Strategy {
     @Override
     public int operation(int one, int two) {
@@ -52,7 +52,7 @@ public class StrategyMultiply implements Strategy {
 
 在Context调用策略
 
-```
+```java
 public class Context {
     private Strategy strategy;
 
@@ -68,7 +68,7 @@ public class Context {
 
 Client端使用
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Context context = new Context(new StrategyAdd());
@@ -105,7 +105,7 @@ public class Client {
 
 链条处理连接，节点处理逻辑
 
-```
+```java
 public class Chain {
     private Chain nextChain;
     private Handler handler;
@@ -134,7 +134,7 @@ public class Chain {
 
 处理节点定义
 
-```
+```java
 public interface Handler {
     void handel(String content,Chain chain);
 }
@@ -142,7 +142,7 @@ public interface Handler {
 
 实现一
 
-```
+```java
 public class HandlerOne implements Handler {
     @Override
     public void handel(String content, Chain chain) {
@@ -159,7 +159,7 @@ public class HandlerOne implements Handler {
 
 调用，设置处理器数组，初始化链条和节点的结构
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Handler[] handlers = {new HandlerOne(),new HandlerTwo(),new HandlerThree()};
@@ -180,7 +180,7 @@ public class Client {
 
 输出,三个处理器依次处理
 
-```
+```java
 aone
 aonetwo
 aonetwothree
@@ -204,7 +204,7 @@ aonetwothree
 
 命令接口，定义行为
 
-```
+```java
 public interface Command {
     void execute();
 }
@@ -212,7 +212,7 @@ public interface Command {
 
 实现类，内部包含接收者
 
-```
+```java
 public class DownCommand implements Command {
     private Receiver receiver;
 
@@ -231,7 +231,7 @@ public class DownCommand implements Command {
 
 接收者可以是任何类，处理最终的逻辑
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Receiver receiver = new Receiver();
@@ -267,7 +267,7 @@ public class Client {
 
 市场作为中介者，买家和卖家交流都需要经过市场
 
-```
+```java
 public class Mediator {
     private Buyer buyer;
     private Seller seller;
@@ -297,7 +297,7 @@ public class Mediator {
 
 买家可以发送和接收消息
 
-```
+```java
 public class Buyer{
     private Mediator mediator;
 
@@ -317,7 +317,7 @@ public class Buyer{
 
 卖家一样
 
-```
+```java
 public class Seller {
     private Mediator mediator;
 
@@ -337,7 +337,7 @@ public class Seller {
 
 在Client中调用,市场本身可以可以调用，发生全部消息，可以被市场管理者调用
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Mediator mediator = new Mediator();
@@ -372,7 +372,7 @@ public class Client {
 
 抽象人一天的生活
 
-```
+```java
 public abstract class AbstractPerson {
     public void happyDay(){
         wakeUp();
@@ -394,7 +394,7 @@ public abstract class AbstractPerson {
 
 工人，只需实现特定的方法，无需（但是可以）修改公共的方法
 
-```
+```java
 public class Worker extends AbstractPerson{
     @Override
     protected void doSomething() {
@@ -405,7 +405,7 @@ public class Worker extends AbstractPerson{
 
 农民，同上
 
-```
+```java
 public class Farmer extends AbstractPerson {
     @Override
     protected void doSomething() {
@@ -416,7 +416,7 @@ public class Farmer extends AbstractPerson {
 
 调用
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Farmer farmer = new Farmer();
@@ -429,7 +429,7 @@ public class Client {
 
 输出：
 
-```
+```java
 wake up in the morning
 go to farm
 sleep in the night
@@ -456,7 +456,7 @@ JDK中的集合类使用了此模式用于遍历集合
 
 迭代器定义行为,判断是否有下一条数据，以及获取当前数据并指针后移一位
 
-```
+```java
 public interface Iterator {
     boolean hasNext();
     Object next();
@@ -465,7 +465,7 @@ public interface Iterator {
 
 聚合（集合）接口，实现此接口者提供迭代器
 
-```
+```java
 public interface Aggregate {
     Iterator createIterator();
 }
@@ -475,7 +475,7 @@ public interface Aggregate {
 
 迭代器的实现时在列表内部的，用于方便的数据获取和判断
 
-```
+```java
 public class NormalList implements Aggregate{
     private String[] arr = new String[10];
     private int size = 0;
@@ -511,7 +511,7 @@ public class NormalList implements Aggregate{
 
 调用
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         NormalList list = new NormalList();
@@ -530,7 +530,7 @@ public class Client {
 
 输出
 
-```
+```java
 a
 b
 c
@@ -557,7 +557,7 @@ d
 
 被访问对象Animal（Element）
 
-```
+```java
 public interface Animal {
     void accept(Visitor visitor);
 }
@@ -565,7 +565,7 @@ public interface Animal {
 
 不同的Animal类型
 
-```
+```java
 public class Cow implements Animal {
     @Override
     public void accept(Visitor visitor) {
@@ -583,7 +583,7 @@ public class Horse implements Animal {
 
 访问者，可以操作2种类型的元素
 
-```
+```java
 public interface Visitor {
     void visit(Horse horse);
     void visit(Cow cow);
@@ -592,7 +592,7 @@ public interface Visitor {
 
 不同的实现可以对已有的元素添加新的操作
 
-```
+```java
 public class FeedMan implements Visitor {
     @Override
     public void visit(Horse horse) {
@@ -620,7 +620,7 @@ public class RideMan implements Visitor {
 
 调用
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Cow cow = new Cow();
@@ -639,7 +639,7 @@ public class Client {
 
 输出
 
-```
+```java
 ride cow
 ride horse
 feed cow
@@ -662,7 +662,7 @@ feed horse
 
 注册中心，可以注册组件，触发组件
 
-```
+```java
 public class Subject {
     private List<Observer> list = new ArrayList<>();
 
@@ -678,7 +678,7 @@ public class Subject {
 
 组件，当事件触发时执行逻辑
 
-```
+```java
 public interface Observer {
     void update(String event);
 }
@@ -686,7 +686,7 @@ public interface Observer {
 
 组件实现
 
-```
+```java
 public class ConcreteObserver implements Observer {
     private String name;
 
@@ -703,7 +703,7 @@ public class ConcreteObserver implements Observer {
 
 调用
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Subject subject = new Subject();
@@ -718,7 +718,7 @@ public class Client {
 
 输出
 
-```
+```java
 one handle + aa
 two handle + aa
 ```
@@ -741,7 +741,7 @@ two handle + aa
 
 表达式
 
-```
+```java
 public interface Expression {
     int interpret(Map<String,Integer> map);
 }
@@ -749,7 +749,7 @@ public interface Expression {
 
 基础类型，返回数值
 
-```
+```java
 public class VarExpression implements Expression {
     private String name;
 
@@ -766,7 +766,7 @@ public class VarExpression implements Expression {
 
 解析加法
 
-```
+```java
 public class AddExpression implements Expression{
     private Expression left;
     private Expression right;
@@ -785,7 +785,7 @@ public class AddExpression implements Expression{
 
 调用，省略了字符串的解析
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Map<String,Integer> map = new HashMap<>();
@@ -815,7 +815,7 @@ public class Client {
 
 被存储内容携带者
 
-```
+```java
 public class Originator {
     private String state;
 
@@ -839,7 +839,7 @@ public class Originator {
 
 备忘录保存着内容本身（state）
 
-```
+```java
 public class Memento {
     private String state;
 
@@ -859,7 +859,7 @@ public class Memento {
 
 备忘录管理者
 
-```
+```java
 public class Caretaker {
     private Memento memento;
 
@@ -875,7 +875,7 @@ public class Caretaker {
 
 调用，包含一次存档和回档操作
 
-```
+```java
 public class Client {
     public static void main(String[] args) {
         Caretaker caretaker = new Caretaker();
@@ -895,9 +895,70 @@ public class Client {
 
 **简介**
 
+ 类的行为是基于它的状态改变的 , 对象的行为依赖于它的状态（属性），并且可以根据它的状态改变而改变它的相关行为。 
 
+**场景**
 
+ 代码中包含大量与对象状态有关的条件语句。 
 
+**代码**
 
+状态
 
+```java
+public interface State {
+    void execute(Context context);
+}
+```
+
+包含状态的类
+
+```java
+public class Context {
+    private State state;
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+}
+```
+
+不同状态
+
+```java
+public class StartState implements State {
+    @Override
+    public void execute(Context context) {
+        System.out.println("start execute");
+        context.setState(this);
+    }
+}
+
+public class StopState implements State {
+    @Override
+    public void execute(Context context) {
+        System.out.println("stop execute");
+        context.setState(this);
+    }
+}
+```
+
+调用，改变状态，改变行为
+
+```java
+public class Client {
+    public static void main(String[] args) {
+        Context context = new Context();
+        State start = new StartState();
+        start.execute(context);
+
+        State stop = new StopState();
+        stop.execute(context);
+    }
+}
+```
 
