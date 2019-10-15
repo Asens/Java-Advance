@@ -26,9 +26,9 @@
 
 ## 并发
 
-[volatile关键字详解](concurrent/volatile.md)
+- [volatile关键字详解](concurrent/volatile.md)
 
 ## 算法
 
-[排序](algorithm/sort.md)
+- [排序](algorithm/sort.md)
 
