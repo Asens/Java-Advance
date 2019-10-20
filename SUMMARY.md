@@ -16,6 +16,7 @@
 ## JVM
 
 - [Java内存模型](jvm/jmm.md)
+- [Java内存数据区域](jvm/java-area.md)
 
 ## 设计模式
 

@@ -1,5 +1,5 @@
 ---
-description: JVM内存结构
+description: JVM内存模型
 ---
 
 #  Java内存模型
