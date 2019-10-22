@@ -35,7 +35,8 @@
 
 - [排序](algorithm/sort.md)
 
-## 刷题
+## LeetCode精选
 
-- [两数相加](leetcode/add-two-numbers.md)
+- [简介](leetcode/introduce.md)
+- [最长子串-滑动窗口](leetcode/move-window.md)
 
