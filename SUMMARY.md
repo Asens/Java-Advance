@@ -39,4 +39,7 @@
 
 - [简介](leetcode/introduce.md)
 - [最长子串-滑动窗口](leetcode/move-window.md)
+- [最长回文子串-动态规划](leetcode/longest-palindromic.md)
+
+
 
