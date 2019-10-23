@@ -83,7 +83,8 @@ public String longestPalindrome(String s) {
                 if (end >= n){
                     break;
                 }
-                temp[j][end] = (i==1 || i==2 || temp[j+1][end-1])  && s.charAt(j)==s.charAt(end);
+                temp[j][end] = (i==1 || i==2 || temp[j+1][end-1])  && 
+                			s.charAt(j)==s.charAt(end);
                 if(temp[j][end] && i>max.length()){
                     max = s.substring(j,j+i);
                 }
