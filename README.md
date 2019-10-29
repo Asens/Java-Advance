@@ -6,6 +6,8 @@
 
 本书的书写顺序为MySQL,计算机网络,并发,集合,算法,中间件,分布式等
 
+[GitBook在线](https://asens.gitbook.io/java-advance/)
+
 ### MySQL
 
 * [MySQL基础](mysql/base.md)
