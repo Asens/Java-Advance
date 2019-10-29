@@ -6,7 +6,7 @@
     "gitbook": "3.2.3",
     "root": ".",
     "structure": {
-        "readme": "README.md"
+        "readme": "start.md"
     },
     "links": {
         "sidebar": {
