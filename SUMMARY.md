@@ -19,6 +19,7 @@
 - [Java内存数据区域](jvm/java-area.md)
 - [对象的创建和内存布局](jvm/object.md)
 - [JVM垃圾回收](jvm/gc.md)
+- [虚拟机加载机制](jvm/classloader.md)
 
 ## 设计模式
 
