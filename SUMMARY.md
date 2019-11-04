@@ -20,6 +20,7 @@
 - [对象的创建和内存布局](jvm/object.md)
 - [JVM垃圾回收](jvm/gc.md)
 - [虚拟机加载机制](jvm/classloader.md)
+- [JVM调优策略和工具](jvm/optimize.md)
 
 ## 设计模式
 
