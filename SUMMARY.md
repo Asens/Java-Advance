@@ -32,6 +32,7 @@
 ## 并发
 
 - [volatile关键字详解](concurrent/volatile.md)
+- [AQS详解](concurrent/aqs.md)
 
 ## 算法
 
