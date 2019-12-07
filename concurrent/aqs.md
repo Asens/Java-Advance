@@ -45,7 +45,7 @@ AQS为独占模式提供了如下方法
 
 ```
 void acquire(int arg)
-
+boolean release(int arg)
 ```
 
 `ReentrantLock`的最基本的使用方式如下
@@ -62,7 +62,7 @@ class X {
        lock.unlock()
      }
    }
-}}
+}
 ```
 
 当创建`ReentrantLock`时默认使用非公平锁，效率高于公平锁，暂不讨论公平锁。
@@ -131,5 +131,140 @@ private Node addWaiter(Node mode) {
 }
 ```
 
+先尝试快速入队，如果入队成功直接返回，如果失败（存在竞态）就使用cas反复入队直到成功为止
 
+入队完成之后再判断一次当前是否有可能获得锁，也就是前一个节点是head的话，前一个线程有可能已经释放了，再获取一次，如果获取成功，设置当前节点为头节点，整个获取过程完成。
+
+```
+final boolean acquireQueued(final Node node, int arg) {
+	boolean failed = true;
+	try {
+		boolean interrupted = false;
+		for (;;) {
+			final Node p = node.predecessor();
+			if (p == head && tryAcquire(arg)) {
+				setHead(node);
+                p.next = null; // help GC
+                failed = false;
+                return interrupted;
+            }
+            if (shouldParkAfterFailedAcquire(p, node) &&
+                parkAndCheckInterrupt())
+                interrupted = true;
+            }
+    } finally {
+         if (failed)
+             cancelAcquire(node);
+    }
+}
+```
+
+获取失败的话先将之前的节点等待状态设置为SIGNAL，如果之前的节点取消了就向前一直找
+
+```
+private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
+	int ws = pred.waitStatus;
+    if (ws == Node.SIGNAL)
+		return true;
+    if (ws > 0) {
+		do {
+			node.prev = pred = pred.prev;
+		} while (pred.waitStatus > 0);
+		pred.next = node;
+    } else {
+		compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
+    }
+    return false;
+}
+```
+
+直到前一个节点不是取消状态，将其之前的节点等待状态设置为SIGNAL，因为再外面是无限循环的，设置SIGNAL成功后，之后就返回true了。
+
+然后一直等待直到被唤醒
+
+```
+private final boolean parkAndCheckInterrupt() {
+	LockSupport.park(this);
+	return Thread.interrupted();
+}
+```
+
+上面就是获取锁并等待的过程，总结起来就是：
+
+当`lock()`执行的时候：
+
+- 先快速获取锁，当前没有线程执行的时候直接获取锁
+- 尝试获取锁，当没有线程执行或是当前线程占用锁，可以直接获取锁
+- 将当前线程包装为node放入同步队列，设置为尾节点
+- 前一个节点如果为头节点，再次尝试获取一次锁
+- 将前一个有效节点设置为SIGNAL
+- 然后阻塞直到被唤醒
+
+### 释放锁
+
+当ReentrantLock进行释放锁操作时，调用的是AQS的`release(1)`操作
+
+```
+public final boolean release(int arg) {
+	if (tryRelease(arg)) {
+		Node h = head;
+        if (h != null && h.waitStatus != 0)
+            unparkSuccessor(h);
+        return true;
+    }
+    return false;
+}
+```
+
+再`tryRelease(arg)`中会将锁释放一次，如果当前state是1，且当前线程是正在占用的线程，释放锁成功，返回true，否则因为是可重入锁，释放一次可能还在占用，应一直释放直到state为0为止
+
+```
+private void unparkSuccessor(Node node) {
+	int ws = node.waitStatus;
+	if (ws < 0)
+		compareAndSetWaitStatus(node, ws, 0);
+	Node s = node.next;
+	if (s == null || s.waitStatus > 0) {
+		s = null;
+		for (Node t = tail; t != null && t != node; t = t.prev)
+			if (t.waitStatus <= 0)
+				s = t;
+	}
+	if (s != null)
+		LockSupport.unpark(s.thread);
+}
+```
+
+然后优先找下一个节点，如果取消了就从尾节点开始找，找到最前面一个可用的节点
+
+将其取消阻塞状态。
+
+阻塞在`acquireQueued`的地方在唤醒之后开始继续执行，当前节点已经是最前面的一个可用（未取消）节点了,经过不断的for循环以及在`shouldParkAfterFailedAcquire`中不断向前寻找可用节点，因此这个被唤醒的节点一定可以使其之前的节点为head。然后获取锁成功。
+
+但是此时节点会与新加入的节点竞争，也就是不公平锁的由来。
+
+在公平锁中，在`tryAcquire`时会判断之前是否有等待的节点`hasQueuedPredecessors()`,如果有就不会再去获取锁了,因此能保证顺序执行。
+
+### 总结
+
+我们可以看到，实现上述的功能，`ReentrantLock`只要实现的`tryAcquire`和`tryRelease`即可实现一个独占锁的获取和释放的功能，AQS内部的逻辑封装还是非常好用的。
+
+## 共享模式
+
+`ReentrantReadWriteLock`是Java中读写锁的实现，写写互斥，读写互斥，读读共享。读写锁在内部分为读锁和写锁，因为我们要探索共享模式，因此只关注读锁。
+
+```
+class X {
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+ 
+   public void m() {
+     rwl.readLock().lock();
+     try {
+       read();
+     } finally {
+       rwl.readLock().unlock();
+     }
+   }
+}
+```
 
