@@ -251,7 +251,7 @@ private void unparkSuccessor(Node node) {
 
 ## 共享模式
 
-`ReentrantReadWriteLock`是Java中读写锁的实现，写写互斥，读写互斥，读读共享。读写锁在内部分为读锁和写锁，因为我们要探索共享模式，因此只关注读锁。
+`ReentrantReadWriteLock`是Java中读写锁的实现，写写互斥，读写互斥，读读共享。读写锁在内部分为读锁和写锁，因为我们要探索共享模式，因此更关注读锁。
 
 ```
 class X {
@@ -265,6 +265,39 @@ class X {
        rwl.readLock().unlock();
      }
    }
+}
+```
+
+读锁加锁,先尝试获取共享锁，如果获取不到，在进行其他操作
+
+```
+public final void acquireShared(int arg) {
+	if (tryAcquireShared(arg) < 0)
+		doAcquireShared(arg);
+}
+```
+
+在tryAcquireShared中如果当前有写锁，返回-1，即未获取共享锁，需要执行下一步`doAcquireShared`。
+
+反之就是可以获取共享锁。
+
+设置共享锁需要修改state的数量，表示获取共享锁的线程的数量，当共享锁的获取存在竞争时，即`compareAndSetState(c, c + SHARED_UNIT))`可能设置失败，此时进入`fullTryAcquireShared(current)`进行获取共享锁的完整版操作。
+
+```
+protected final int tryAcquireShared(int unused) {
+    Thread current = Thread.currentThread();
+    int c = getState();
+    if (exclusiveCount(c) != 0 &&
+        getExclusiveOwnerThread() != current)
+        return -1;
+    int r = sharedCount(c);
+    if (!readerShouldBlock() &&
+        r < MAX_COUNT &&
+        compareAndSetState(c, c + SHARED_UNIT)) {
+        //设置firstReader，计算数量，略
+        return 1;
+    }
+    return fullTryAcquireShared(current);
 }
 ```
 
