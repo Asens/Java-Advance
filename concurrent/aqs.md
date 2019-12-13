@@ -301,3 +301,90 @@ protected final int tryAcquireShared(int unused) {
 }
 ```
 
+也就是说共享锁获取时：
+
+- 如果当前没有独占锁在占用，AQS根据其实现类的`tryAcquireShared`来实现让一个共享锁直接获取到锁(可以直接执行)
+- 当有独占锁在占用是，让共享锁去等待直到独占锁解锁为止，也就是`doAcquireShared(arg)`的逻辑
+
+```
+private void doAcquireShared(int arg) {
+    final Node node = addWaiter(Node.SHARED);
+    boolean failed = true;
+    try {
+        boolean interrupted = false;
+        for (;;) {
+            final Node p = node.predecessor();
+            if (p == head) {
+                int r = tryAcquireShared(arg);
+                if (r >= 0) {
+                    setHeadAndPropagate(node, r);
+                    p.next = null; // help GC
+                    if (interrupted)
+                        selfInterrupt();
+                    failed = false;
+                    return;
+                }
+            }
+            if (shouldParkAfterFailedAcquire(p, node) &&
+                parkAndCheckInterrupt())
+                interrupted = true;
+        }
+    } finally {
+        if (failed)
+            cancelAcquire(node);
+    }
+}
+```
+
+`doAcquireShared(arg)`处了将线程封装成节点入队外还表达了3个思想：
+
+- 什么时候该执行
+- 什么时候该传播
+- 什么时候该等待（阻塞）
+
+其中入队、执行和等待的逻辑基本和独占锁一样，
+
+- 入队：都是加入等待队列的末尾，成为`tail`节点；
+- 执行：判断当前节点的前一个节点是不是头节点，如果是的话尝试获取锁，如果获取到了就执行；
+- 等待：获取不到或前一个节点不是头节点就代表该线程需要暂时等待，直到被叫醒为止。设置前一个节点为`SIGNAL`状态，然后进入等待。
+
+其中不同的就是共享锁的传播逻辑：
+
+想象一下，当前有一个写锁正在占用，有多个读锁在等待，当写锁释放时，第二个线程也就是想要获取读锁的线程就可以获取锁了。获取到之后当前正在用的锁就是读锁了，那后面的读锁呢，因为读锁是共享的，后面的读锁应该也能够依次获取读锁，也就是读锁的传播机制。
+
+```
+private void setHeadAndPropagate(Node node, int propagate) {
+    Node h = head; 
+    setHead(node);
+    if (propagate > 0 || h == null || h.waitStatus < 0 ||
+        (h = head) == null || h.waitStatus < 0) {
+        Node s = node.next;
+        if (s == null || s.isShared())
+            doReleaseShared();
+    }
+}
+```
+
+将当前的节点设置为头节点，判断如果是共享锁，执行`doReleaseShared()`
+
+```
+private void doReleaseShared() {
+    for (;;) {
+        Node h = head;
+        if (h != null && h != tail) {
+            int ws = h.waitStatus;
+            if (ws == Node.SIGNAL) {
+                if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
+                    continue;            // loop to recheck cases
+                unparkSuccessor(h);
+            }
+            else if (ws == 0 &&
+                     !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
+                continue;                // loop on failed CAS
+        }
+        if (h == head)                   // loop if head changed
+            break;
+    }
+}
+```
+
