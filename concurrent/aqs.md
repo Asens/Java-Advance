@@ -39,13 +39,20 @@ AQS内部维护一个线程的队列。队列由内部的节点组成。
 
 ## 独占模式
 
-`ReentrantLock`和`synchronized`功能类似，zhiyou 使用AQS的独占模式，只有一个线程可以获取锁。
+`ReentrantLock`和`synchronized`功能类似，使用AQS的独占模式，只有一个线程可以获取锁。
 
 AQS为独占模式提供了如下方法
 
 ```
 void acquire(int arg)
 boolean release(int arg)
+```
+
+由实现类实现
+
+```
+boolean tryAcquire(int acquires)
+boolean tryRelease(int releases)
 ```
 
 `ReentrantLock`的最基本的使用方式如下
@@ -252,6 +259,22 @@ private void unparkSuccessor(Node node) {
 ## 共享模式
 
 `ReentrantReadWriteLock`是Java中读写锁的实现，写写互斥，读写互斥，读读共享。读写锁在内部分为读锁和写锁，因为我们要探索共享模式，因此更关注读锁。
+
+AQS为共享模式提供了如下方法
+
+```
+void doAcquireShared(int arg)
+boolean doReleaseShared(int arg)
+```
+
+由实现类实现
+
+```
+int tryAcquireShared(int unused)
+boolean tryReleaseShared(int unused)
+```
+
+`ReentrantReadWriteLock`的读锁的最基本的使用方式如下
 
 ```
 class X {
