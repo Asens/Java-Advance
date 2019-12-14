@@ -247,7 +247,7 @@ private void unparkSuccessor(Node node) {
 
 ### 总结
 
-我们可以看到，实现上述的功能，`ReentrantLock`只要实现的`tryAcquire`和`tryRelease`即可实现一个独占锁的获取和释放的功能，AQS内部的逻辑封装还是非常好用的。
+我们可以看到，实现上述的功能，`ReentrantLock`只要实现的`tryAcquire`和`tryRelease`即可实现一个独占锁的获取和释放的功能。
 
 ## 共享模式
 
@@ -267,6 +267,8 @@ class X {
    }
 }
 ```
+
+### 获取锁
 
 读锁加锁,先尝试获取共享锁，如果获取不到，在进行其他操作
 
@@ -365,7 +367,7 @@ private void setHeadAndPropagate(Node node, int propagate) {
 }
 ```
 
-将当前的节点设置为头节点，判断如果是共享锁，执行`doReleaseShared()`
+将当前的节点设置为头节点，判断如果是共享锁，执行`doReleaseShared()`，唤醒当前节点
 
 ```
 private void doReleaseShared() {
@@ -375,16 +377,54 @@ private void doReleaseShared() {
             int ws = h.waitStatus;
             if (ws == Node.SIGNAL) {
                 if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
-                    continue;            // loop to recheck cases
+                    continue;
                 unparkSuccessor(h);
             }
             else if (ws == 0 &&
                      !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
-                continue;                // loop on failed CAS
+                continue;
         }
-        if (h == head)                   // loop if head changed
+        if (h == head)
             break;
     }
 }
 ```
 
+当前节点唤醒之后`doAcquireShared(int arg)`会继续执行,因为之前的节点被设置为头节点,如果后续是获取共享锁的节点会继续执行`setHeadAndPropagate`,一直传播下去直到遇到获取独占锁的节点。
+
+共享锁的获取总结如下：
+
+- 尝试获取共享锁，如果当前是共享锁或无锁，设置共享锁的`state`,获取锁
+- 如果当前是写锁，进入等待流程
+- 入队，加入等待队列的末尾，成为`tail`节点
+- 判断当前节点的前一个节点是不是头节点，如果是的话尝试获取锁，如果获取到了就执行
+- 获取不到或前一个节点不是头节点就代表该线程需要暂时等待，直到被叫醒为止。设置前一个节点为`SIGNAL`状态，然后进入等待
+- 如果可以获取到锁，设置头节点并进入共享锁节点传播流程
+
+### 释放锁
+
+共享锁使用完毕需要释放锁，分为`tryReleaseShared(arg)`和`doReleaseShared()`2个阶段
+
+```
+public final boolean releaseShared(int arg) {
+    if (tryReleaseShared(arg)) {
+        doReleaseShared();
+        return true;
+    }
+    return false;
+}
+```
+
+在`tryReleaseShared(arg)`，基本就是`tryAcquireShared(int unused)`的反向操作
+
+将设置的`HoldCounter`减少，`firstReader`设置null，`state`减少,将`tryAcquireShared(int unused)`添加的状态全部反向还原回去
+
+当共享锁全部释放完毕，返回true，否则返回false
+
+然后执行`doReleaseShared()`，刚才已经提及，`doReleaseShared()`将唤醒下一个可用的节点，独占节点将会执行，共享节点执行并传播。
+
+## 总结
+
+AQS共享模式和独占模式的实现上最大的差别就在于共享模式获取锁后的传播。
+
+其他的区别主要还是表现在实现类实现的区别上。通过ReentrantLock和ReentrantReadWriteLock可以了解AQS的独占模式和共享模式，但是要注意将AQS和锁的实现剥离开，弄明白哪些逻辑是AQS实现的，哪些逻辑是锁实现的，同时也思考怎么使用AQS实现其他的特定的线程同步问题。
