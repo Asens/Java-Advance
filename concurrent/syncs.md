@@ -64,3 +64,118 @@ public final boolean releaseShared(int arg) {
 
 因为是基于AQS的，` state`为可执行线程的数量，当获取锁时` state`-1，执行完毕时` state`+1。
 
+当` state`小于0时，新加入的线程需要等待直到有线程执行完毕释放为止
+
+当Semaphore初始化时设定同时执行线程的数量，当有线程需要执行时，调用`acquire()`,释放时调用`release()`
+
+```
+Semaphore available = new Semaphore(10)
+available.acquire()
+available.release()
+```
+
+`acquire()`执行时，` state`是可用资源量，如果` state-1<0`，需要等待
+
+`release()`执行时，如果` state+1`，只要释放一个资源就会无条件返回true
+
+```
+protected final boolean tryReleaseShared(int releases) {
+    for (;;) {
+        int current = getState();
+        int next = current + releases;
+        if (next < current) // overflow
+            throw new Error("Maximum permit count exceeded");
+        if (compareAndSetState(current, next))
+            return true;
+    }
+}
+```
+
+也就会执行`doReleaseShared()`
+
+```
+public final boolean releaseShared(int arg) {
+    if (tryReleaseShared(arg)) {
+        doReleaseShared();
+        return true;
+    }
+    return false;
+}
+```
+
+在`doReleaseShared`中会唤醒等待的节点，因为是共享锁，会在后续触发唤醒传播。
+
+## CyclicBarrier
+
+可循环使用的栅栏。
+
+`CyclicBarrier`并没有使用AQS，而是使用了`ReentrantLock`，算是间接使用吧。
+
+`CyclicBarrier`的功能和`CountDownLatch`功能有些类似，可以使指定数量的线程等待直到线程到齐，然后一起执行下一步。
+
+就好像大家越好一起出去玩，有的人先到了，需要等后来的人，等到齐了大家一起出发一样。
+
+在调用的时候只需要调用`await()`就可以了，等到指定数量的线程调用`await()`，全部线程同时继续执行（确切的说使在极短的时间内依次唤醒）。
+
+因此使用非常简单。
+
+而且不同于`CountDownLatch`的是，`CyclicBarrier`是可循环执行的，当等到指定数量的线程调用`await()`，全部线程同时继续执行后，内部回恢复初始状态，使得可以再次有相同的或不同的线程再次调用`await()`能够和第一次达到完全相同的效果。
+
+下面是`await()`的核心代码，省略部分异常处理等代码
+
+```
+private int dowait(boolean timed, long nanos){
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+        final Generation g = generation;
+        int index = --count;
+        if (index == 0) {  // tripped
+            boolean ranAction = false;
+            final Runnable command = barrierCommand;
+            if (command != null)
+                command.run();
+            ranAction = true;
+            nextGeneration();
+            return 0;
+        }
+        for (;;) {
+            if (!timed)
+            	trip.await();
+            else if (nanos > 0L)
+                nanos = trip.awaitNanos(nanos);
+            if (g != generation)
+                return index;
+        }
+    } finally {
+        lock.unlock();
+    }
+}
+```
+
+当线程执行`await()`时，会首先获取`lock`，假设要等待的线程数量为10，第一个线程的index为9，会进入`trip.await()`，`trip`是一个`Condition`，当执行`await()`时会进入等待状态，会释放当前锁以便下一个线程可以获取锁。
+
+当第10个线程获取锁时，index为0，进入`nextGeneration()`,也就是重新初始化`CyclicBarrier`
+
+```
+private void nextGeneration() {
+	trip.signalAll();
+    count = parties;
+    generation = new Generation();
+}
+```
+
+`nextGeneration()`做2件事
+
+- 唤醒全部节点，开始执行
+- 将count和generation恢复成初始状态，使其恢复冲再次可以工作的初始状态。
+
+## 总结
+
+` CountDownLatch`是一个一次性的栅栏，比较灵活，可以让任意线程等待，也可以让任意线程执行`countDown()`直到指定的次数，使等待的线程被唤醒。
+
+`Semaphore`可以指定的运行线程的最大数量，适合控制资源访问。
+
+`CyclicBarrier`是一个可循环的栅栏，线程到齐自动执行下一步。
+
+每个组件都有自己比较适合的使用场景，需要按照自己的需求进行选择。同时这些组件本质上也都是依赖AQS。当这些组件都不满足需求时，可以发挥自己的创造力使用AQS开发出更适合的新的组件。
