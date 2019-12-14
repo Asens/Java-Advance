@@ -33,6 +33,7 @@
 
 - [volatile关键字详解](concurrent/volatile.md)
 - [AQS详解](concurrent/aqs.md)
+- [同步组件CountDownLatch、Semaphore、CyclicBarrier](concurrent/syncs.md)
 
 ## 算法
 
