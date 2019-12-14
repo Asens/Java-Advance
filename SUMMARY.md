@@ -39,6 +39,10 @@
 
 - [排序](algorithm/sort.md)
 
+## Java基础
+
+[HashMap](base/hashmap.md)
+
 ## LeetCode精选
 
 - [简介](leetcode/introduce.md)
