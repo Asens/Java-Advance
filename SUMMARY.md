@@ -34,6 +34,9 @@
 - [volatile关键字详解](concurrent/volatile.md)
 - [AQS详解](concurrent/aqs.md)
 - [同步组件CountDownLatch、Semaphore、CyclicBarrier](concurrent/syncs.md)
+- [同步容器ArrayBlockingQueue、ConcurrentLinkedQueue](concurrent/sync-container1.md)
+- [ConcurrentHashMap详解](concurrent/concurrenthashmap.md)
+- [同步容器CopyOnWriteArrayList](concurrent/sync-container2.md)
 
 ## 算法
 
