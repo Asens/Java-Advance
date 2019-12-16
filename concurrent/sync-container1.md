@@ -112,7 +112,7 @@ private void enqueue(E x) {
 
 ### 出队
 
-将首个节点移出队列，并返回。当队列为空时，等待。
+将首个节点移出队列，并返回。当队列为空时，等待。如果队列有元素，执行出队操作。
 
 ```
 public E take() throws InterruptedException {
@@ -128,3 +128,23 @@ public E take() throws InterruptedException {
 }
 ```
 
+我们假设目前队列已满，有线程正在等待入队。
+
+当执行出队操作时
+
+```
+private E dequeue() {
+    final Object[] items = this.items;
+    E x = (E) items[takeIndex];
+    items[takeIndex] = null;
+    if (++takeIndex == items.length)
+        takeIndex = 0;
+    count--;
+    if (itrs != null)
+        itrs.elementDequeued();
+    notFull.signal();
+    return x;
+}
+```
+
+除了常规的出队操作
