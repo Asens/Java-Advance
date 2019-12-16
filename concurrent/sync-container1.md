@@ -38,7 +38,9 @@ E take() throws InterruptedException;
 
 ## ArrayBlockingQueue
 
-入队操作，当队列满了的时候等待，不满的话执行入队操作。
+### 入队
+
+当队列满了的时候等待，不满的话执行入队操作。
 
 ```
 public void put(E e) throws InterruptedException {
@@ -65,4 +67,64 @@ Condition notFull =  lock.newCondition();
 ```
 
 当队列已满，后续所有的线程调用put的话都会进入lock的等待队列。
+
+因为ReentrantLock是基于AQS实现的，AQS内部维护的除了同步队列之外还有等待队列。
+
+当队列已满执行await()时，根据代码可以大概看懂逻辑。
+
+```java
+//AbstractQueuedSynchronizer
+public final void await() throws InterruptedException {
+    //省略了一些中断和异常代码
+    Node node = addConditionWaiter();
+    int savedState = fullyRelease(node);
+    int interruptMode = 0;
+    while (!isOnSyncQueue(node)) {
+        LockSupport.park(this);
+        if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
+            break;
+    }
+}
+```
+
+- 生成一个节点并将其添加进入等待队列
+- 完全释放该节点，释放线程持有的锁
+- 判断该线程是否在同步队列，第一次执行是不在的，使用LockSupport阻塞该线程
+
+也就是说**新的线程加入时会获取锁，当队列已满，该线程进入notFull的等待队列，释放锁，然后阻塞。**
+
+当再有新的线程加入时，可以完美的再次执行同样的逻辑，进入等待队列进行等待。
+
+如果队列没满或有其他出队操作，会唤醒阻塞的等待队列的节点，开始执行入队操作
+
+```
+private void enqueue(E x) {
+    final Object[] items = this.items;
+    items[putIndex] = x;
+    if (++putIndex == items.length)
+		putIndex = 0;
+	count++;
+	notEmpty.signal();
+}
+```
+
+队列入队的常规操作，不再详述，执行完毕后会执行非空notEmpty等待队列的唤醒操作signal()，稍后再说。
+
+### 出队
+
+将首个节点移出队列，并返回。当队列为空时，等待。
+
+```
+public E take() throws InterruptedException {
+    final ReentrantLock lock = this.lock;
+    lock.lockInterruptibly();
+    try {
+        while (count == 0)
+            notEmpty.await();
+        return dequeue();
+    } finally {
+        lock.unlock();
+    }
+}
+```
 
