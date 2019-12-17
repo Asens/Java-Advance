@@ -1,7 +1,7 @@
 ---
-description: 同步容器ArrayBlockingQueue、ConcurrentLinkedQueue
+description: 同步容器ArrayBlockingQueue
 ---
-# 同步容器ArrayBlockingQueue、ConcurrentLinkedQueue
+# 同步容器ArrayBlockingQueue
 
 JDK提供了一系列线程安全的容器，在多线程的环境中可以提供稳定的操作。这里说一下线程安全的队列。
 
@@ -147,4 +147,51 @@ private E dequeue() {
 }
 ```
 
-除了常规的出队操作
+除了常规的出队操作，需要需要关注出队后的唤醒和解锁。
+
+- notFull.signal()
+- lock.unlock()
+
+阻塞队列的语义就是当队列已满，入队的线程等待。当队列有元素出队时，入队的线程被唤醒，然后继续执行。notFull.signal()和lock.unlock()共同完成了等待线程的唤醒。
+
+notFull.signal()会执行AQS中的doSignal(Node first)
+
+```
+//AbstractQueuedSynchronizer
+private void doSignal(Node first) {
+    do {
+        if ( (firstWaiter = first.nextWaiter) == null)
+            lastWaiter = null;
+        first.nextWaiter = null;
+    } while (!transferForSignal(first) &&
+             (first = firstWaiter) != null);
+}
+```
+
+除了等待队列的一些头尾节点的设置，signal()的主要操作是把节点（等待入队的线程节点）从等待队列移动到同步队列
+
+```
+final boolean transferForSignal(Node node) {
+    if (!compareAndSetWaitStatus(node, Node.CONDITION, 0))
+        return false;
+
+    Node p = enq(node);
+    int ws = p.waitStatus;
+    if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
+        LockSupport.unpark(node.thread);
+    return true;
+}
+```
+
+> 可以理解为Lock下的每个Condition对象，对应一个等待队列，同步队列是等待锁的队列，一个锁只有一个同步队列，可以有多个等待队列。
+>
+> 同步队列和等待队列都复用AQS内部的Node作为队列的节点，使用不同的指针，同步队列使用prev和next作为前后节点，而等待队列是nextWaiter。
+>
+> 两种节点的初始化状态都是0，共享节点的会被设置为CONDITION（-2），同步队列为SIGNAL（-1）
+
+因此signal()完成的是设置节点的状态，先从CONDITION设置0，入队，然后设置为SIGNAL（-1），阻塞。外部的while循环会不断的重试直到设置成功为止。
+
+目前等待入队的节点从等待队列被移动到同步队列，然后被阻塞了。
+
+下一部就是lock.unlock()，唤醒同步队列中的阻塞节点了，在[AQS详解](https://github.com/Asens/Java-Advance/blob/master/concurrent/aqs.md)中已经说的足够多了。等待入队的线程被唤醒就可以执行入队操作了。
+
