@@ -67,9 +67,11 @@ public ConcurrentLinkedQueue() {
 
 ![image-20191222091001473](.gitbook/assets/image-20191222091001473.png)
 
+### 单线程入队
+
 我们先讨论单线程的情况下ConcurrentLinkQueue的基础入队情况
 
-当节点第一次入队时
+**第一次入队**
 
 - 会进入条件（1）
 - 单线程无线程竞争，p cas设置next会设置成功
@@ -79,5 +81,39 @@ public ConcurrentLinkedQueue() {
 
 然后队列就变成了如下状态
 
-![第一次入队完成](.gitbook/assets/image-20191222092248655.png)
+![image-20191222093913927](.gitbook/assets/image-20191222093913927.png)
+
+**第二次入队**
+
+![image-20191222094233797](.gitbook/assets/image-20191222094233797.png)
+
+- q!=null ，q!=p 进入条件（3）
+- p==t，所以p=q
+
+![image-20191222094727384](.gitbook/assets/image-20191222094727384.png)
+
+进入下一次循环，q指向p的next节点
+
+![image-20191222095802948](.gitbook/assets/image-20191222095802948.png)
+
+- q==null，进入条件1
+- cas设置next节点
+- p!=t，设置tail节点
+
+![image-20191222100112276](.gitbook/assets/image-20191222100112276.png)
+
+第三次入队就和第一次入队一样，也就是，奇数次的入队和偶数次的入队逻辑保持一致。
+
+- 奇数次入队时，tail并不是最后一个节点，是倒数第二个节点
+- 偶数次入队时，tail是最后一个节点
+
+### 多线程入队
+
+
+
+
+
+
+
+
 
