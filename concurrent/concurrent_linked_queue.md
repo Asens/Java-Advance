@@ -65,7 +65,7 @@ public ConcurrentLinkedQueue() {
 }
 ```
 
-![image-20191222091001473](.gitbook/assets/image-20191222091001473.png)
+![初始化状态](.gitbook/assets/image-20191222091001473.png)
 
 ### 单线程入队
 
