@@ -77,30 +77,30 @@ public ConcurrentLinkedQueue() {
 - 单线程无线程竞争，p cas设置next会设置成功
 - p==t，不设置tail，返回true
 
-![image-20191222091820498](.gitbook/assets/image-20191222091820498.png)
+![第一次入队](.gitbook/assets/image-20191222091820498.png)
 
 然后队列就变成了如下状态
 
-![image-20191222093913927](.gitbook/assets/image-20191222093913927.png)
+![第一次入队完成](.gitbook/assets/image-20191222093913927.png)
 
 **第二次入队**
 
-![image-20191222094233797](.gitbook/assets/image-20191222094233797.png)
+![第二次入队开始](.gitbook/assets/image-20191222094233797.png)
 
 - q!=null ，q!=p 进入条件（3）
 - p==t，所以p=q
 
-![image-20191222094727384](.gitbook/assets/image-20191222094727384.png)
+![第二次入队第2次循环](.gitbook/assets/image-20191222094727384.png)
 
 进入下一次循环，q指向p的next节点
 
-![image-20191222095802948](.gitbook/assets/image-20191222095802948.png)
+![q指向像一个节点](.gitbook/assets/image-20191222095802948.png)
 
 - q==null，进入条件1
 - cas设置next节点
 - p!=t，设置tail节点
 
-![image-20191222100112276](.gitbook/assets/image-20191222100112276.png)
+![第二次入队完成](.gitbook/assets/image-20191222100112276.png)
 
 第三次入队就和第一次入队一样，也就是，奇数次的入队和偶数次的入队逻辑保持一致。
 
