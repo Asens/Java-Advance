@@ -37,15 +37,18 @@ public boolean offer(E e) {
     final Node<E> newNode = new Node<E>(e);
     for (Node<E> t = tail, p = t;;) {
         Node<E> q = p.next;
-        if (q == null) {
+        //(1)
+        if (q == null) { 
             if (p.casNext(null, newNode)) {
                 if (p != t)
                     casTail(t, newNode);
                 return true;
             }
         }
+        //(2)
         else if (p == q)
             p = (t != (t = tail)) ? t : head;
+        //(3)
         else
             p = (p != t && t != (t = tail)) ? t : q;
     }
@@ -54,5 +57,27 @@ public boolean offer(E e) {
 
 根据名字可以看到ConcurrentLinkQueue会采用CAS的方式设置下一个节点以及tail节点。
 
+初始状态，head和tail同时指向一个节点，没有内容
 
+```
+public ConcurrentLinkedQueue() {
+	head = tail = new Node<E>(null);
+}
+```
+
+![image-20191222091001473](.gitbook/assets/image-20191222091001473.png)
+
+我们先讨论单线程的情况下ConcurrentLinkQueue的基础入队情况
+
+当节点第一次入队时
+
+- 会进入条件（1）
+- 单线程无线程竞争，p cas设置next会设置成功
+- p==t，不设置tail，返回true
+
+![image-20191222091820498](.gitbook/assets/image-20191222091820498.png)
+
+然后队列就变成了如下状态
+
+![第一次入队完成](.gitbook/assets/image-20191222092248655.png)
 
