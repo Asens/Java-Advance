@@ -37,7 +37,7 @@
 - [同步容器ArrayBlockingQueue](concurrent/array-block-queue.md)
 - [同步容器ConcurrentLinkedQueue](concurrent/concurrent_linked_queue.md)
 - [ConcurrentHashMap详解](concurrent/concurrent-hash-map.md)
-- [同步容器CopyOnWriteArrayList](concurrent/copy-on-write-array-list.md)
+- [JUC杂谈](concurrent/juc.md)
 
 ## 算法
 
