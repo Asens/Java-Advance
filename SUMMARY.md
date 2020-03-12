@@ -54,5 +54,8 @@
 - [最长子串-滑动窗口](leetcode/move-window.md)
 - [最长回文子串-动态规划](leetcode/longest-palindromic.md)
 
+## 分布式
 
+- [简介](distribute/introduce.md)
+- [什么是断路器模式](distribute/circuit-breaker.md)
 
