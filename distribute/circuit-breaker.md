@@ -19,3 +19,4 @@ CircuitBreaker circuitBreaker = CircuitBreaker.create(timeout,threshold,monitor)
 
 
 
+https://martinfowler.com/bliki/CircuitBreaker.html
