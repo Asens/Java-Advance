@@ -75,7 +75,7 @@ public class CircuitBreaker{
 
 这个简单的断路器可以良好的工作，但是当断路器断开之后就永远无法继续调用了，因此需要有个机制能够在服务恢复正常时，断路器自动切换回CLOSED状态。
 
-断路器增加了HALF_OPEN状态，在状态为OPEN后可以在经过一段时间之后进入HALF_OPEN状态，在HALF_OPEN状态下会进行尝试性调用，当目标服务可用之后，切换回CLOSED状态。
+断路器增加了HALF_OPEN状态，在状态为OPEN后可以在经过一段时间之后进入HALF_OPEN状态，在HALF_OPEN状态下会进行尝试性调用，当目标服务可用之后，切换回CLOSED状态
 
 ![image-20200314093843536](.gitbook/assets/image-20200314093843536.png)
 
