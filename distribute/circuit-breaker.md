@@ -77,7 +77,7 @@ public class CircuitBreaker{
 
 断路器增加了HALF_OPEN状态，在状态为OPEN后可以在经过一段时间之后进入HALF_OPEN状态，在HALF_OPEN状态下会进行尝试性调用，当目标服务可用之后，切换回CLOSED状态。
 
-![image-20200313112541949](.gitbook\assets\image-20200313112541949.png)
+![image-20200314093843536](.gitbook/assets/image-20200314093843536.png)
 
 伪代码如下:
 
@@ -139,7 +139,7 @@ public class ResetCircuitBreaker{
 
 客户端要做好断路器打开的准备，需要根据断路器返回的错误做出对应的处理。判断是直接返回错误还是做一些妥协性的处理。
 
-目前微服务中比较通用的断路器有Hystrix和Sentinel，更加深入的了解可以参考这2个组件。
+目前微服务中比较通用的断路器有Hystrix和Sentinel，更加深入的了解可以参考这2个组件。 
 
 
 
