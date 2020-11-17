@@ -48,3 +48,8 @@ RPUSH，LPUSH，RPOP，LPOP，LINDEX，LRANGE，LTRIM
 有头节点和尾节点
 
 有链表长度计数器
+
+
+
+### 散列（字典）
+
