@@ -5,13 +5,7 @@ description: redis的各种结构使用和原理
 
 # Redis结构
 
-- String
-- List
-- Set
-- Hash
-- ZSet
-
-
+String，List，Set，Hash，ZSet
 
 ### String
 
@@ -51,9 +45,13 @@ RPUSH，LPUSH，RPOP，LPOP，LINDEX，LRANGE，LTRIM
 
 
 
-### Set
+### Set集合
 
+集合不包含相同的元素，内部采用散列表的方式
 
+sadd，smembers（返回所有元素），sismember，srem
+
+sadd key-name a
 
 
 
@@ -91,5 +89,11 @@ Redis中的散列可以存储多个键值对的映射
 
 
 
-ZSet
+### ZSet
+
+根据score排序的有序集合
+
+zadd，zrange，zrangebyscore，zrem
+
+zadd key score member
 
