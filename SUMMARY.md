@@ -59,3 +59,6 @@
 - [简介](distribute/introduce.md)
 - [什么是断路器模式](distribute/circuit-breaker.md)
 
+## Redis
+
+- [Redis结构](redis/constraction.md)
